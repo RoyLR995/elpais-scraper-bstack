@@ -8,3 +8,4 @@ def test_language_label_is_spanish(driver):
     home.accept_cookies_if_present()
     label = home.get_espana_label_text()
     assert label.upper() == "ESPAÑA"
+    print("Language is Spanish")

@@ -3,6 +3,7 @@ import requests
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from utils.title_store import TitleStore
 
 class OpinionPage:
     def __init__(self, driver):
@@ -36,6 +37,8 @@ class OpinionPage:
             title = self.driver.find_element(By.TAG_NAME, "h1").text
         except:
             title = "No title found"
+
+        TitleStore.add_title(title)
 
         # Extract Content
         try:
