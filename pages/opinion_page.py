@@ -1,5 +1,6 @@
 import os
 import requests
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,37 +11,31 @@ class OpinionPage:
         self.driver = driver
         self.wait = WebDriverWait(driver, 10)
 
-    ARTICLE_BLOCKS = (By.CSS_SELECTOR, "article")
-
     def get_first_5_articles(self):
-        self.wait.until(EC.presence_of_all_elements_located(self.ARTICLE_BLOCKS))
-        return self.driver.find_elements(*self.ARTICLE_BLOCKS)[:5]
-
-    def open_article_in_new_tab(self, url):
-        self.driver.execute_script(f"window.open('{url}', '_blank');")
-        self.driver.switch_to.window(self.driver.window_handles[-1])
+        return self.driver.find_elements(By.CSS_SELECTOR, "article")[:3]
 
     def extract_article_data(self, article_element, index):
         try:
-            link = article_element.find_element(By.CSS_SELECTOR, "h2 a")
-            article_url = link.get_attribute("href")
-        except:
+            link_element = article_element.find_element(By.CSS_SELECTOR, "h2 a")
+            article_url = link_element.get_attribute("href")
+        except Exception as e:
             print(f"Article {index}: No valid link found.")
             return
 
         original_tab = self.driver.current_window_handle
-        self.open_article_in_new_tab(article_url)
-        self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "article")))
 
-        # Extract Title
+        # Open in new tab
+        self.driver.execute_script("window.open(arguments[0], '_blank');", article_url)
+        self.driver.switch_to.window(self.driver.window_handles[1])
+        self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "header")))
+
+        # Extract full title
         try:
             title = self.driver.find_element(By.TAG_NAME, "h1").text
         except:
             title = "No title found"
 
-        TitleStore.add_title(title)
-
-        # Extract Content
+        # Extract content
         try:
             content = self.driver.find_element(By.TAG_NAME, "h2").text
         except:
@@ -49,20 +44,25 @@ class OpinionPage:
         # Extract image
         image_url = ""
         try:
-            image = self.driver.find_element(By.CSS_SELECTOR, "article img")
-            image_url = image.get_attribute("src")
-            self.download_image(image_url, f"article_{index}.jpg")
+            img_element = self.driver.find_element(By.CSS_SELECTOR, "article img")
+            image_url = img_element.get_attribute("src") or img_element.get_attribute("data-src")
+            if image_url:
+                self.download_image(image_url, f"article_{index}.jpg")
         except:
-            print(f"Article {index}: No image found.")
+            print(f"No image found for Article {index}")
 
-        print(f"\n Article {index}")
+        TitleStore.add_title(title)
+
+        print(f"\nArticle {index}")
         print(f"Title   : {title}")
         print(f"Content : {content}")
         if image_url:
             print(f"Image   : Downloaded.")
 
         self.driver.close()
+        time.sleep(3)
         self.driver.switch_to.window(original_tab)
+
 
     def download_image(self, url, filename):
         try:

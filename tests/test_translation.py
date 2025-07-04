@@ -5,6 +5,7 @@ from collections import Counter
 
 def test_translate_titles_and_count():
     titles = TitleStore.get_titles()
+    print(titles)
     assert titles, "No titles found. Run opinion scraping test first."
 
     translated = []
