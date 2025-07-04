@@ -2,7 +2,7 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def driver():
     chrome_driver_path = r"c:\Users\likhi\Downloads\chromedriver-win64 (1)\chromedriver-win64\chromedriver.exe"
     service = Service(chrome_driver_path)
