@@ -65,7 +65,7 @@ Parallel testing on BrowserStack with support for multiple browser configuration
     Note: Do not forget to wrap all the values of the above variables inside "".
 
 ### Usage Instructions
-* Run the main script to scrape articles, process titles, download cover images, and translate them in one go by running ```python scraper.py``` in the terminal
+* Run the main script to scrape articles, process titles, download cover images, and translate them in one go by running ```python run_scraper_suite.py``` in the terminal
 
   That's it! The script handles all functionalities in a single run, including:
 
